@@ -1,0 +1,21 @@
+ apiVersion: argoproj.io/v1alpha1
+ kind: Application
+ metadata:
+   name: prometheus # Application Name
+   namespace: argocd # Argocd deployed in argocd namespace
+ spec:
+   destination:  # on which cluster prometheus need to be deployed
+     server: https://kubernetes.default.svc  #Its on the same minikube cluster where argocd is running 
+     namespace: monitoring  # Namespace where Prometheus will be installed # On which Namespace prometheus need # to be deployed 
+   source:
+     # repoURL: https://prometheus-community.github.io/helm-charts  # Official Helm stable repository URL (since the official Prometheus chart is part of the "prometheus-community")
+     # chart: prometheus  # The name of the chart to deploy
+     # targetRevision: 14.8.0  # Specific version of the chart (optional, can be set to 'latest' or omitted to use the latest version)
+       repoURL: https://github.com/<your-username>/<your-repo>
+       path: prometheus
+       targetRevision: HEAD
+   project: default  # Argo CD project where this application belongs
+   syncPolicy:
+     automated:
+       prune: true  # Prune resources that are no longer in the manifest
+       selfHeal: true  # Automatically sync when changes are detected
