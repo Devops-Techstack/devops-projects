@@ -1,0 +1,37 @@
+version: '3.8' #Docker compose version
+ 
+ services: #this defines the different containers (services) that make up your application
+   mongo: #1st Service
+     image: mongo:latest #Using official Mongo Image
+     container_name: mongo 
+     ports:
+       - "27017:27017" #Maps port 27017 of the container to port 27017 on the host so MongoDB can be accessed externally.
+     environment:
+       - MONGO_INITDB_ROOT_USERNAME=admin #setting the username and password for admin user 
+       - MONGO_INITDB_ROOT_PASSWORD=password
+     volumes:
+       - mongo-data:/data/db #Mounts a named volume mongo-data to persist MongoDB data across container restarts.
+     networks: 
+       - mongo-net
+ 
+   mongo-express: #2nd service
+     image: mongo-express:latest #Uses the official mongo-express image.
+     container_name: mongo-express
+     ports:
+       - "8081:8081" #Maps port 8081 of the container to port 8081 on the host, which is the default port for the MongoExpress web interface.
+     environment: #Uses the environment variables to connect to the MongoDB container (which is named mongo).
+       - ME_CONFIG_MONGODB_SERVER=mongo
+       - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+       - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+       - ME_CONFIG_MONGODB_PORT=27017
+     depends_on: #This means that the service in question (e.g., a web application or mongo-express) depends on the mongo service and should wait for the mongo container to start before starting itself.
+       - mongo
+     networks:
+       - mongo-net
+ 
+ volumes: #The mongo-data volume persists the MongoDB data so that it's not lost when the container is stopped or restarted.
+   mongo-data:
+ 
+ networks: #Both containers are connected to the same custom bridge network mongo-net to ensure they can communicate with each other by their container names (mongo for MongoDB and mongo-express for the web interface).
+   mongo-net:
+     driver: bridge
